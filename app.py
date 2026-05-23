@@ -8,24 +8,22 @@ app = Flask(__name__)
 
 app.secret_key = "secretkey"
 
-UPLOAD_FOLDER = 'uploads'
-BACKUP_FOLDER = 'backups'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+BACKUP_FOLDER = os.path.join(BASE_DIR, 'backups')
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(BACKUP_FOLDER, exist_ok=True)
 
 
-# HOME PAGE
+# HOME
 @app.route('/')
 def home():
-
-    if 'user' in session:
-        return redirect('/dashboard')
-
     return redirect('/login')
 
 
-# LOGIN PAGE
+# LOGIN
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -91,7 +89,7 @@ def upload():
     return render_template('upload.html')
 
 
-# CREATE BACKUP
+# BACKUP
 @app.route('/backup')
 def backup():
 
@@ -113,7 +111,7 @@ def backup():
     return "Backup Created Successfully"
 
 
-# RESTORE BACKUP
+# RESTORE
 @app.route('/restore')
 def restore():
 
