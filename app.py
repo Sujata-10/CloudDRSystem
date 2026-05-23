@@ -60,7 +60,7 @@ def login():
 
     cursor = db.cursor()
 
-    query = "SELECT * FROM users WHERE username=%s AND password>
+   query = "SELECT * FROM users WHERE username=%s AND password=%s"
 
     cursor.execute(query, (username, password))
 
