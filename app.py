@@ -11,6 +11,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+@app.route('/')
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
