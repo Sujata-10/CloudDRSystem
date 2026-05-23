@@ -1,152 +1,56 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request
 import os
-import shutil
-import psutil
 from datetime import datetime
 
 app = Flask(__name__)
 
-app.secret_key = "secretkey"
+UPLOAD_FOLDER = 'uploads'
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-BACKUP_FOLDER = os.path.join(BASE_DIR, 'backups')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(BACKUP_FOLDER, exist_ok=True)
-
-
-# HOME
-@app.route('/')
-def home():
-    return redirect('/login')
-
-
-# LOGIN
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-
-    if request.method == 'POST':
-
-        username = request.form['username']
-        password = request.form['password']
-
-        if username == 'admin' and password == 'admin123':
-
-            session['user'] = username
-
-            return redirect('/dashboard')
-
-        else:
-            return "Invalid Username or Password"
-
-    return render_template('login.html')
-
-
-# DASHBOARD
 @app.route('/dashboard')
 def dashboard():
+    return render_template('dashboard.html')
 
-    if 'user' not in session:
-        return redirect('/login')
+@app.route('/upload', methods=['POST'])
+def upload_file():
 
-    cpu = psutil.cpu_percent()
-    memory = psutil.virtual_memory().percent
+    file = request.files['file']
 
-    files = os.listdir(UPLOAD_FOLDER)
+    if file:
 
-    return render_template(
-        'dashboard.html',
-        cpu=cpu,
-        memory=memory,
-        files=files
-    )
+        filepath = os.path.join(
+            app.config['UPLOAD_FOLDER'],
+            file.filename
+        )
 
+        file.save(filepath)
 
-# FILE UPLOAD
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
+        file_size = round(
+            os.path.getsize(filepath) / 1024,
+            2
+        )
 
-    if 'user' not in session:
-        return redirect('/login')
+        upload_time = datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
 
-    if request.method == 'POST':
+        file_extension = os.path.splitext(
+            file.filename
+        )[1]
 
-        file = request.files['file']
+        return render_template(
+            'dashboard.html',
+            filename=file.filename,
+            filesize=file_size,
+            uploadtime=upload_time,
+            filetype=file_extension
+        )
 
-        if file.filename != '':
-
-            file.save(
-                os.path.join(
-                    UPLOAD_FOLDER,
-                    file.filename
-                )
-            )
-
-            return "File Uploaded Successfully"
-
-    return render_template('upload.html')
-
-
-# BACKUP
-@app.route('/backup')
-def backup():
-
-    if 'user' not in session:
-        return redirect('/login')
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    backup_path = os.path.join(
-        BACKUP_FOLDER,
-        f'backup_{timestamp}'
-    )
-
-    shutil.copytree(
-        UPLOAD_FOLDER,
-        backup_path
-    )
-
-    return "Backup Created Successfully"
-
-
-# RESTORE
-@app.route('/restore')
-def restore():
-
-    if 'user' not in session:
-        return redirect('/login')
-
-    backups = sorted(os.listdir(BACKUP_FOLDER))
-
-    if not backups:
-        return "No Backup Found"
-
-    latest_backup = os.path.join(
-        BACKUP_FOLDER,
-        backups[-1]
-    )
-
-    if os.path.exists(UPLOAD_FOLDER):
-        shutil.rmtree(UPLOAD_FOLDER)
-
-    shutil.copytree(
-        latest_backup,
-        UPLOAD_FOLDER
-    )
-
-    return "System Restored Successfully"
-
-
-# LOGOUT
-@app.route('/logout')
-def logout():
-
-    session.pop('user', None)
-
-    return redirect('/login')
-
+    return "No File Uploaded"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)

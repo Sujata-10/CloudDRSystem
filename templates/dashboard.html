@@ -1,18 +1,130 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cloud DR Dashboard</title>
+
+<title>Cloud DR Dashboard</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    padding:20px;
+}
+
+.container{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:10px;
+    width:320px;
+}
+
+h1{
+    text-align:center;
+}
+
+h2{
+    color:#38bdf8;
+}
+
+button{
+    background:#38bdf8;
+    border:none;
+    color:white;
+    padding:10px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.analysis{
+    margin-top:15px;
+    background:#334155;
+    padding:10px;
+    border-radius:5px;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <h1>Cloud Disaster Recovery Dashboard</h1>
 
-<h2>Primary Server Status : Running</h2>
+<div class="container">
 
-<h2>Database Status : Connected</h2>
+<div class="card">
 
-<h2>Backup Status : Active</h2>
+<h2>Server Status</h2>
+
+<p>Primary Server : Running</p>
+<p>Database : Connected</p>
+<p>Backup : Active</p>
+<p>Firewall : Enabled</p>
+
+</div>
+
+<div class="card">
+
+<h2>Business File Upload</h2>
+
+<form action="/upload" method="POST" enctype="multipart/form-data">
+
+<input type="file" name="file">
+
+<br><br>
+
+<button type="submit">
+Upload File
+</button>
+
+</form>
+
+{% if filename %}
+
+<div class="analysis">
+
+<h3>Real-Time File Analysis</h3>
+
+<p><b>File Name :</b> {{ filename }}</p>
+
+<p><b>File Type :</b> {{ filetype }}</p>
+
+<p><b>File Size :</b> {{ filesize }} KB</p>
+
+<p><b>Upload Time :</b> {{ uploadtime }}</p>
+
+<p><b>Status :</b> Upload Successful</p>
+
+<p><b>Threat Scan :</b> No Threats Found</p>
+
+<p><b>Backup Status :</b> Completed</p>
+
+</div>
+
+{% endif %}
+
+</div>
+
+<div class="card">
+
+<h2>Recovery Logs</h2>
+
+<p>Backup Synchronization Active</p>
+<p>Recovery Server Ready</p>
+<p>Database Monitoring Enabled</p>
+<p>Security Monitoring Active</p>
+
+</div>
+
+</div>
 
 </body>
 </html>
